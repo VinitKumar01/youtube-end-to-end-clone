@@ -13,7 +13,7 @@ export function useIntersectionObserver(options?: IntersectionObserverInit) {
       observer.observe(targetRef.current);
     }
 
-    return observer.disconnect();
+    return () => observer.disconnect();
   }, [options]);
 
   return { targetRef, isIntersecting };
