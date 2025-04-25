@@ -9,6 +9,12 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
+
 export const users = pgTable(
   "users",
   {
@@ -79,6 +85,10 @@ export const videos = pgTable(
   },
   (t) => [uniqueIndex("")]
 );
+
+export const videoInsertSchema = createInsertSchema(videos);
+export const videoUpdateSchema = createUpdateSchema(videos);
+export const videoSelectSchema = createSelectSchema(videos);
 
 //The relations below are for applications if the developer wants to use relational queries so drizzle could know which other fields to include, the actual relation is defined above in schema. The videoRelations below can be removed and won't affect your database, it won't even recognise any changes when you do drizzle-kit push.
 export const videoRelations = relations(videos, ({ one }) => ({
