@@ -87,7 +87,7 @@ export const POST = async (request: Request) => {
         existingVideo &&
         (existingVideo.thumbnailKey || existingVideo.thumbnailUrl)
       ) {
-        break;
+        return new Response("Skipped re-upload", { status: 200 });
       }
 
       const utapi = new UTApi();
