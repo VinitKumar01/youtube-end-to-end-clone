@@ -54,6 +54,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants";
 import { ThumbnailUploadModal } from "../components/thumbnail-upload-modal";
+import { ThumbnailGenerateModal } from "../components/thumbnail-generate-modal";
 
 interface FormSectionProps {
   videoId: string;
@@ -79,6 +80,8 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
   const [video] = trpc.studio.getOne.useSuspenseQuery({ id: videoId });
   const [categories] = trpc.categories.getMany.useSuspenseQuery();
   const [thumbnailModalOpen, setThumbnailModalOpen] = useState(false);
+  const [thumbnailGenerateModalOpen, setThumbnailGenerateModalOpen] =
+    useState(false);
 
   const update = trpc.videos.update.useMutation({
     onSuccess: () => {
@@ -135,17 +138,6 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
     },
   });
 
-  const generateThumbnail = trpc.videos.generateThumbnail.useMutation({
-    onSuccess: () => {
-      toast.success("Background job started", {
-        description: "This may take some time",
-      });
-    },
-    onError: () => {
-      toast.error("Something went wrong");
-    },
-  });
-
   const form = useForm<z.infer<typeof videoUpdateSchema>>({
     resolver: zodResolver(videoUpdateSchema),
     defaultValues: video,
@@ -176,6 +168,11 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
         videoId={videoId}
         open={thumbnailModalOpen}
         onOpenChange={setThumbnailModalOpen}
+      />
+      <ThumbnailGenerateModal
+        videoId={videoId}
+        open={thumbnailGenerateModalOpen}
+        onOpenChange={setThumbnailGenerateModalOpen}
       />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -318,7 +315,7 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() =>
-                                generateThumbnail.mutate({ id: videoId })
+                                setThumbnailGenerateModalOpen(true)
                               }
                             >
                               <SparklesIcon className="size-4 mr-1" />
@@ -419,7 +416,7 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                       </p>
                       <p className="text-sm">
                         {snakecaseToTitle(
-                          video.muxTrackStatus || "no_subtitles"
+                          video.muxTrackStatus || "no_subtitles",
                         )}
                       </p>
                     </div>
